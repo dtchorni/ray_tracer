@@ -22,3 +22,5 @@ double Vect::dot(const Vect v) const{ return x*(v.getX()) + y*v.getY() + z*v.get
 Vect Vect::cross(const Vect v) const{ return Vect(y*v.getZ() - z*v.getY(), z*v.getX() - x*v.getZ(), x*v.getY()-y*v.getX()); }
 
 Vect Vect::operator+(const Vect &v) const{ return Vect(x+v.getX(),y+v.getY(),z+v.getZ());}
+
+Vect Vect::operator*(const double& num) const{ return Vect(x*num,y*num,z*num);}

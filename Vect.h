@@ -27,6 +27,8 @@ public:
 
 	Vect operator+(const Vect&) const;
 
+	Vect operator*(const double&)const;
+
 };
 
 
