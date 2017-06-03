@@ -1,12 +1,15 @@
-OBJ =main.o
-INC = -I "./"
+CXX = g++
+ 
+EXEC = raytracer
+OBJECTS = main.o Vect.o Ray.o Camera.o
+DEPENDS = ${OBJECTS:.o=.d}
 
-raytracer: $(OBJ)
-	g++ $(OBJ) -o raytracer.exe
-	rm -f $(OBJ)
+${EXEC}: ${OBJECTS}
+	${CXX} ${OBJECTS} -o ${EXEC}
 
-main.o:
-	g++ -c main.cpp $(INC)
+-include ${DEPENDS}
+
+.PHONY: clean
 
 clean:
-	rm -f $(OBJ raytracer
+	rm ${OBJECTS} ${EXEC} ${DEPENDS}

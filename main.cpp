@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "Vect.h"
+#include "Ray.h"
+#include "Camera.h"
+
 using namespace std;
 
 struct RGBType{ double r; double g; double b; };
@@ -80,6 +84,7 @@ void savebmp(const char *filename, int w, int h, int dpi, RGBType *data){
 
 int thisone;
 
+
 int main(int argc, char *argv[]){
 		cout<<"rendering ..." <<endl;
 
@@ -90,6 +95,10 @@ int main(int argc, char *argv[]){
 		int n = width*height;
 
 		RGBType *pixels = new RGBType[n];
+
+		Vect X(1,0,0);
+		Vect Y(0,1,0);
+		Vect Z(0,0,1);
 
 		for( int x =0; x< width; x++){
 			for(int y =0; y < height; y++){
