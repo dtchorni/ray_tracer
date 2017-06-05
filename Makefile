@@ -1,7 +1,7 @@
 CXX = g++
  
 EXEC = raytracer
-OBJECTS = main.o Vect.o Ray.o Camera.o Light.o Color.o
+OBJECTS = main.o Vect.o Ray.o Camera.o Light.o Color.o Sphere.o Plane.o Object.o
 DEPENDS = ${OBJECTS:.o=.d}
 
 ${EXEC}: ${OBJECTS}
