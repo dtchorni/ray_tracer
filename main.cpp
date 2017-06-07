@@ -163,14 +163,15 @@ int main(int argc, char *argv[]){
 		
 		//scene objects
 
-		Sphere scene_sphere(O,1,pretty_green);
+		//Sphere scene_sphere(O,1,pretty_green);
 		Plane scene_plane(Y,-1, maroon);
 
 		vector<Object*> scene_objects;
-		scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
+		//scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
 		scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
 
 		double xamnt, yamnt;
+		//double scale = tan(deg2rad())
 
 
 		for( int x =0; x< width; x++){
@@ -178,16 +179,18 @@ int main(int argc, char *argv[]){
 				thisone = y*width +x;
 				
 				//start with no anti-aliasing
-				if(width > height){
-					xamnt= ((x+0.5)/width)*aspectratio - (((width-height)/(double)height)/2);
-					yamnt= ((height -y)+ 0.5)/height;
-				}else if(height >width){
-						xamnt = (x + 0.5)/width;
-						yamnt = (((height - y)+ 0.5)/height)/aspectratio - (((height - width)/(double)width/2));
+				//if(width > height){
+					xamnt = (2*((x+0.5)/width)-1)*aspectratio ;
+					yamnt = (1 - 2*((y+0.5)/height));
+					//xamnt= ((x+0.5)/width)*aspectratio - (((width-height)/(double)height)/2);
+					//yamnt= ((height -y)+ 0.5)/height;
+				/*}else if(height >width){
+					xamnt = (x + 0.5)/width;
+					yamnt = (((height - y)+ 0.5)/height)/aspectratio - (((height - width)/(double)width/2));
 				}else{
-						xamnt = (x + 0.5)/width;
-						yamnt = ((height-y)+0.5)/height;
-				}
+					xamnt = (x + 0.5)/width;
+					yamnt = ((height-y)+0.5)/height;
+				}*/
 
 				Vect cam_ray_origin = scene_cam.getCampos();
 				Vect cam_ray_direction = camDir + (camRight *(xamnt-0.5)+ (camDown * (yamnt-0.5))).normalize();
