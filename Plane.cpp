@@ -10,12 +10,13 @@ Plane::Plane(Vect n, double d, Color c): normal(n),distance(d), color(c){}
 Vect Plane::getNormalAt(Vect point){return normal;}
 
 double Plane::findIntersection(Ray ray){
-	Vect ray_direction = ray.getDirection();
+	Vect ray_direction = ray.getDirection().normalize();
 	double a = ray_direction.dot(normal);
 
 	if (a == 0) return -1; // parallel to plane
 	else{
-		double b = normal.dot(ray.getOrigin() + (normal*distance).negative());
+		double b = -1*((normal.dot(ray.getOrigin())) + distance);
+		//double b = normal.dot(ray.getOrigin() + (normal*distance).negative());
 		return -1*b/a;
 	}
 }
