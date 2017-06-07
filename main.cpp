@@ -87,8 +87,41 @@ void savebmp(const char *filename, int w, int h, int dpi, RGBType *data){
 
 }
 
-int thisone;
+int winningObjectIndex(vector<double> object_intersections){
+	//return the index of teh winning intersection
+	int index_of_minimum_value;
+double m = 0;
+	//prevent unnecessary calculations
+	if(object_intersections.size()==0){ return -1;}
+	else if(object_intersections.size()==1) {
+		if(object_intersections.at(0)>0){
+			return 0;
+		}else{
+			return -1;
+		}
+	}
+	
+	else{
+		
+		for(int i =0; i < object_intersections.size(); ++i){
+			if(m < object_intersections.at(i)) m = object_intersections.at(i);
+		}
+	}
 
+	if(m > 0){
+		for(int index =0; index < object_intersections.size(); index++){
+			if(object_intersections.at(index) > 0 && object_intersections.at(index)<= m){
+				m = object_intersections.at(index);
+				index_of_minimum_value=index;
+			}
+		}
+		return index_of_minimum_value;
+	}else{
+		return -1;
+	}
+}
+
+int thisone;
 
 int main(int argc, char *argv[]){
 		cout<<"rendering ..." <<endl;
@@ -96,6 +129,8 @@ int main(int argc, char *argv[]){
 		int dpi =72;
 		int width =640;
 		int height =480;
+
+		double aspectratio = (double)width/(double)height;
 
 		int n = width*height;
 
@@ -114,7 +149,7 @@ int main(int argc, char *argv[]){
 		Vect camDir = (diff_btw.negative()).normalize();
 		Vect camRight = Y.cross(camDir).normalize();
 		Vect camDown = camRight.cross(camDir);
-		Camera scene_camp(campos,camDir,camRight,camDown);
+		Camera scene_cam(campos,camDir,camRight,camDown);
 
 		Color white_light (1.0,1.0,1.0,0);
 		Color pretty_green(0.5,1.0,0.5,0.3);
@@ -131,15 +166,57 @@ int main(int argc, char *argv[]){
 		Sphere scene_sphere(O,1,pretty_green);
 		Plane scene_plane(Y,-1, maroon);
 
+		vector<Object*> scene_objects;
+		scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
+		scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
+
+		double xamnt, yamnt;
 
 
 		for( int x =0; x< width; x++){
 			for(int y =0; y < height; y++){
 				thisone = y*width +x;
-				//return colour
-				pixels[thisone].r=23;
-				pixels[thisone].g = 222;
-				pixels[thisone].b = 14;
+				
+				//start with no anti-aliasing
+				if(width > height){
+					xamnt= ((x+0.5)/width)*aspectratio - (((width-height)/(double)height)/2);
+					yamnt= ((height -y)+ 0.5)/height;
+				}else if(height >width){
+						xamnt = (x + 0.5)/width;
+						yamnt = (((height - y)+ 0.5)/height)/aspectratio - (((height - width)/(double)width/2));
+				}else{
+						xamnt = (x + 0.5)/width;
+						yamnt = ((height-y)+0.5)/height;
+				}
+
+				Vect cam_ray_origin = scene_cam.getCampos();
+				Vect cam_ray_direction = camDir + (camRight *(xamnt-0.5)+ (camDown * (yamnt-0.5))).normalize();
+
+				Ray cam_ray (cam_ray_origin, cam_ray_direction);
+
+				vector<double> intersections;
+
+				for(int index =0; index<scene_objects.size(); ++index){
+						intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));
+				}
+
+				int index_of_winning_object = winningObjectIndex(intersections);
+
+				cout<<index_of_winning_object;
+
+				if(index_of_winning_object==-1){//background
+					pixels[thisone].r=0;
+					pixels[thisone].g = 0;
+					pixels[thisone].b = 0;
+				}else{//object
+					Color this_color = scene_objects.at(index_of_winning_object)->getColor();			
+
+					pixels[thisone].r=this_color.getRed();
+					pixels[thisone].g = this_color.getGreen();
+					pixels[thisone].b = this_color.getBlue();
+				}
+
+				
 			}
 		}
 
