@@ -15,6 +15,7 @@ public:
 	//methods
 	virtual double findIntersection(Ray);
 	virtual Color getColor(){return Color (0.0,0.0,0.0,0);}
+	virtual Vect getNormal(){return Vect(0,0,0);}
 
 };
 

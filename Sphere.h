@@ -21,7 +21,7 @@ public:
 	virtual double getRadius(){return radius;}
 	virtual Color getColor(){return color;}
 
-	virtual Vect getNormalAt(Vect point);
+	virtual Vect getNormal(Vect point);
 	virtual double findIntersection(Ray ray);
 
 };

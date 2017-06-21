@@ -4,8 +4,9 @@
 
 #include "Color.h"
 #include "Vect.h"
+#include "Source.h"
 
-class Light{
+class Light : public Source{
 	Vect position;
 	Color color;
 

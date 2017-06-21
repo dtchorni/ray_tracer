@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 #include "Vect.h"
 #include "Ray.h"
@@ -18,6 +19,8 @@
 #include "Object.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Source.h"
+#include "Intersection.h"
 
 using namespace std;
 
@@ -121,16 +124,81 @@ double m = 0;
 	}
 }
 
+
+Color getColorAt(Vect intersection_position, Vect intersection_ray_direction, vector<Object*>scene_objects,int index_of_winning_object,vector<Source*> light_sources, double accuracy, double ambientlight){
+	
+	Color winning_object_color = scene_objects.at(index_of_winning_object)->getColor();
+	Vect winning_object_normal = scene_objects.at(index_of_winning_object)->getNormal();
+
+	Color final_color = winning_object_color.colorScalar(ambientlight);
+
+	for(int light_index =0; light_index < light_sources.size(); light_index++){
+		Vect light_direction = (light_sources.at(light_index)->getPosition() + intersection_position.negative()).normalize() ;
+
+		float cosine_angle = winning_object_normal.dot(light_direction);
+
+		if(cosine_angle>0){
+			//test for shadows
+			bool shadow = false;
+			Vect distance_to_light = (light_sources.at(light_index)->getPosition() + intersection_position.negative()).normalize();
+			float distance_to_light_magnitude = distance_to_light.magnitude();
+
+			Ray shadow_ray (intersection_position, (light_sources.at(light_index)->getPosition() + intersection_position.negative()).normalize());
+
+			vector<double> secondary_intersections;
+			for(int object_index =0; object_index < scene_objects.size() && shadow==false; object_index++){
+				secondary_intersections.push_back(scene_objects.at(object_index)->findIntersection(shadow_ray));
+
+			}
+			for(int c =0; c<secondary_intersections.size(); ++c){
+				if(secondary_intersections.at(c) > accuracy){
+					if(secondary_intersections.at(c)<=distance_to_light_magnitude){
+						shadow =true;
+					}
+
+				}
+				break;
+			}
+			if(shadow==false){
+				//Color temp =((light_sources.at(light_index)->getColor()).colorScalar(cosine_angle));
+				final_color =final_color + (winning_object_color * ((light_sources.at(light_index)->getColor()).colorScalar(cosine_angle)));
+				
+				if(winning_object_color.getSpecial() > 0 && winning_object_color.getSpecial()<=1){
+					//special [0-1]shine
+					double dot1 = winning_object_normal.dot(intersection_ray_direction.negative());
+					Vect scalar1 = winning_object_normal * dot1;
+					Vect add1 = scalar1 + intersection_ray_direction;
+					Vect scalar2 = add1 * 2;
+					Vect add2 = intersection_ray_direction.negative() + scalar2;
+					Vect reflection_direction = add2.normalize();
+
+					double specular = reflection_direction.dot(light_direction);
+					if(specular > 0){
+						specular = pow(specular,10);
+						final_color = final_color + light_sources.at(light_index)->getColor().colorScalar(specular*winning_object_color.getSpecial());
+					}
+				}
+			}
+		}
+
+	}
+
+	return final_color;
+}
+
+
 int thisone;
 
 int main(int argc, char *argv[]){
-		cout<<"rendering ..." <<endl;
+		//cout<<"rendering ..." <<endl;
 
 		int dpi =72;
-		int width =640;
-		int height =480;
+		int width =200;
+		int height =200;
 
 		double aspectratio = (double)width/(double)height;
+		double ambientlight =0.2;
+		double accuracy =0.000001;
 
 		int n = width*height;
 
@@ -141,15 +209,37 @@ int main(int argc, char *argv[]){
 		Vect Z(0,0,1);
 		Vect O(0,0,0);
 
+
+		/*cam1
 		Vect campos(3,1.5,-4);
 
 		Vect lookAt(0,0,0);
 		Vect diff_btw(campos.getX() - lookAt.getX(),campos.getY() - lookAt.getY(),campos.getZ() - lookAt.getZ());
+
+		Vect camDir = diff_btw.negative().normalize();
+		Vect camRight=Y.cross(camDir).normalize();
+		Vect camDown = camRight.cross(camDir).negative();
+		Camera scene_cam (campos,camDir,camRight,camDown);
+		*/
+
 		
-		Vect camDir = (diff_btw.negative()).normalize();
-		Vect camRight = Y.cross(camDir).normalize();
-		Vect camDown = camRight.cross(camDir);
+		//cam2
+
+		Vect campos(0,0,1);
+
+		Vect lookAt(0,0,0); 
+		Vect diff_btw(campos.getX() -
+		lookAt.getX(),campos.getY() - lookAt.getY(),campos.getZ() -
+		lookAt.getZ());
+		
+		Vect camDir = (diff_btw.negative()).normalize(); //Z.negative();
+		Vect camRight = Y.cross(camDir).normalize(); //X;
+		Vect camDown = Y.negative();//camRight.cross(camDir);
+		camDir.print();
+		camRight.print();
+		camDown.print();
 		Camera scene_cam(campos,camDir,camRight,camDown);
+
 
 		Color white_light (1.0,1.0,1.0,0);
 		Color pretty_green(0.5,1.0,0.5,0.3);
@@ -157,18 +247,29 @@ int main(int argc, char *argv[]){
 		Color gray(0.5,0.5,0.5,0);
 		Color black(0,0,0,0);
 
-		Vect light_position(-7,10,-10);
+		Vect light_position(0,0,1);//Vect light_position(-7,10,-10);
 
 		Light scene_light(light_position,white_light);
+		vector<Source*> light_sources;
+		light_sources.push_back(dynamic_cast<Source*>(&scene_light));
+
 		
 		//scene objects
-
-		Sphere scene_sphere(O,1,pretty_green);
+		Vect s = Vect(0,0,0);
+		
+		//for cam1
+		Sphere scene_sphere(O,0.25,pretty_green);
 		Plane scene_plane(Y,-1, maroon);
-
+/*
+		//for cam2
+		Sphere scene_sphere(s,,pretty_green);
+		Plane scene_plane(X,-1,maroon);
+*/
 		vector<Object*> scene_objects;
+				
+		//cout<<"sphere is first, plane is second"<<endl;
 		scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
-		scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
+		//scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
 
 		double xamnt, yamnt;
 
@@ -177,7 +278,8 @@ int main(int argc, char *argv[]){
 			for(int y =0; y < height; y++){
 				thisone = y*width +x;
 				
-				//start with no anti-aliasing
+				
+				//for cam1
 				if(width > height){
 					xamnt= ((x+0.5)/width)*aspectratio - (((width-height)/(double)height)/2);
 					yamnt= ((height -y)+ 0.5)/height;
@@ -189,35 +291,77 @@ int main(int argc, char *argv[]){
 						yamnt = ((height-y)+0.5)/height;
 				}
 
+
+/*						
+				//for cam2 assume its square
+				double xNDC, yNDC,screenX,screenY,camX,camY;
+				xNDC = (x+0.5)/width;
+				yNDC = (y+0.5)/height;
+				screenX = 2*xNDC-1;
+				screenY = 1- 2*yNDC;
+				camX = (2*screenX-1)*aspectratio*tan(M_PI/4);
+				camY=(1-2*screenY)*tan(M_PI/4);
+*/
+				
+
 				Vect cam_ray_origin = scene_cam.getCampos();
-				Vect cam_ray_direction = camDir + (camRight *(xamnt-0.5)+ (camDown * (yamnt-0.5))).normalize();
+				Vect cam_ray_direction(camDir + (camRight *(xamnt-0.5))+ (camDown * (yamnt-0.5)));//(camX,camY, -1); // cam2
+				cam_ray_direction.normalize();
+
+				////cout<<"origin vector: ";
+				//cam_ray_origin.print();
+				////cout<<"direction vector: ";
+				//cam_ray_direction.print();
 
 				Ray cam_ray (cam_ray_origin, cam_ray_direction);
 
 				vector<double> intersections;
-
+				//cout<<"\nintersections at: "<<x<<" "<<y<<endl;
 				for(int index =0; index<scene_objects.size(); ++index){
-						intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));
+						double h =scene_objects.at(index)->findIntersection(cam_ray);
+						intersections.push_back(h);
+						//cout<<"\t"<<h<<" "<<endl;
 				}
+				//cout<<"end of intersections"<<endl;
 
 				int index_of_winning_object = winningObjectIndex(intersections);
 
-				cout<<index_of_winning_object;
+				//cout<<index_of_winning_object;
+
+
 
 				if(index_of_winning_object==-1){//background
 					pixels[thisone].r=0;
 					pixels[thisone].g = 0;
 					pixels[thisone].b = 0;
+					////cout<<" ";
 				}else{//object
-					Color this_color = scene_objects.at(index_of_winning_object)->getColor();			
+					if(intersections.at(index_of_winning_object)>accuracy){
+						//determine the position and dircetion at the POI
 
-					pixels[thisone].r=this_color.getRed();
-					pixels[thisone].g = this_color.getGreen();
-					pixels[thisone].b = this_color.getBlue();
+						Vect intersection_position = cam_ray_origin + (cam_ray_direction * intersections.at(index_of_winning_object));
+						Vect intersection_ray_direction = cam_ray_direction;
+
+
+						Color intersection_color = getColorAt(intersection_position, intersection_ray_direction, scene_objects,index_of_winning_object,light_sources, accuracy,ambientlight);
+
+						pixels[thisone].r=intersection_color.getRed();
+						pixels[thisone].g = intersection_color.getGreen();
+						pixels[thisone].b = intersection_color.getBlue();
+
+						/*Color this_color = scene_objects.at(index_of_winning_object)->getColor();	//no shading		
+						////cout<<"x";
+
+						pixels[thisone].r=this_color.getRed();
+						pixels[thisone].g = this_color.getGreen();
+						pixels[thisone].b = this_color.getBlue();*/
+					}
+
 				}
 
 				
 			}
+			//cout<<endl;
 		}
 
 
@@ -225,3 +369,6 @@ int main(int argc, char *argv[]){
 
 		return 0;
 }
+
+
+

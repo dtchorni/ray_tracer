@@ -2,7 +2,7 @@
 #ifndef _VECT_H
 #define _VECT_H
 #include "math.h"
-
+#include <iostream>
 class Vect{
 	double x,y,z;
 
@@ -28,6 +28,7 @@ public:
 	Vect operator+(const Vect&) const;
 
 	Vect operator*(const double&)const;
+	void print(){ std::cout<<"X: "<<x<<" Y: "<<y<< " Z: "<<z<<std::endl;}
 
 };
 

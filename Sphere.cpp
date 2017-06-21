@@ -1,5 +1,6 @@
 #include "Sphere.h"
 #include <iostream>
+#include <math.h>
 
 Sphere::Sphere(){
 	center = Vect(0,0,0);
@@ -8,12 +9,16 @@ Sphere::Sphere(){
 }
 Sphere::Sphere(Vect o, double r, Color d): center(o),radius(r), color(d){}
 
-Vect Sphere::getNormalAt(Vect point){
+Vect Sphere::getNormal(Vect point){
 	//normal always points away from the center fo teh sphere
-	Vect normal_vect=point+(center.negative()).normalize();
+	Vect normal_vect=(point+(center.negative())).normalize();
 	return normal_vect;
 }
-double Sphere::findIntersection(Ray ray){
+Intersection Sphere::findIntersection(Ray ray, vector<Source*> light_sources){
+	double distance;
+	vector<double> angle;
+	Vect normal;
+
 	Vect ray_origin = ray.getOrigin();
 	double ray_origin_x = ray_origin.getX();
 	double ray_origin_y = ray_origin.getY();
@@ -24,11 +29,16 @@ double Sphere::findIntersection(Ray ray){
 	double ray_direction_y = ray_direction.getY();
 	double ray_direction_z = ray_direction.getZ();
 
+	/*std::cout<<std::endl;
+	ray_origin.print();
+	ray_direction.print();*/
+
 	//double check = ray_direction.normalize().magnitude();
 
 	//std::cout<<check<<" "<<ray_direction.magnitude()<<std::endl;
 
-	Vect sphere_center = ray.getDirection();
+	Vect sphere_center = center;//ray.getDirection();
+	//sphere_center.print();
 	double sphere_center_x = sphere_center.getX();
 	double sphere_center_y = sphere_center.getY();
 	double sphere_center_z = sphere_center.getZ();
@@ -43,14 +53,38 @@ double Sphere::findIntersection(Ray ray){
 		//first root
 		double root_1 = ((-1*b - sqrt(discriminant))/2) - 0.00001;
 		if(root_1>0){//first rot is the smallest positive root
-			return root_1;
+			distance = root_1;
+			double x,y,z;
+			x = ray_origin_x*(1-distance)+(distance*ray_direction_x);
+			y = ray_origin_y*(1-distance)+(distance*ray_direction_y);
+			z = ray_origin_z*(1-distance)+(distance*ray_direction_z);
+			normal = getNormal(Vect(x,y,z));
+			int s = light_sources.size();
+			for(int i =0; i < s; ++i){
+				double a = (normal.dot(light_sources.at(i)->getPos())) / (normal.magnitude()*light_sources.at(i).magnitude());
+				a = (acos(a)-90) * 180/PI;
+				angle.push_back(a);
+			}
+			return Intersection(distance,angle,normal);
 		}else{//the second root is the smallest positive root
 			double root_2 = ((-1*b + sqrt(discriminant))/2) - 0.00001;
-			return root_2;
+			distance = root_2;
 		}
+		double x,y,z;
+			x = ray_origin_x*(1-distance)+(distance*ray_direction_x);
+			y = ray_origin_y*(1-distance)+(distance*ray_direction_y);
+			z = ray_origin_z*(1-distance)+(distance*ray_direction_z);
+			normal = getNormal(Vect(x,y,z));
+			int s = light_sources.size();
+			for(int i =0; i < s; ++i){
+				double a = (normal.dot(light_sources.at(i)->getPos())) / (normal.magnitude()*light_sources.at(i).magnitude());
+				a = (acos(a)-90) * 180/PI;
+				angle.push_back(a);
+			}
+			return Intersection(distance,angle,normal);
 	}else {
 		//ray missed sphere
-		return -1;
+		return Intersection(-1,vector<double>(),Vect());
 	}
 
 
