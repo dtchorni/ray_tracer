@@ -6,6 +6,8 @@
 #include "Object.h"
 #include "Vect.h"
 #include "math.h"
+#include "Intersection.h"
+#include "Source.h"
 
 class Sphere : public Object {
 	Vect center;
@@ -21,8 +23,8 @@ public:
 	virtual double getRadius(){return radius;}
 	virtual Color getColor(){return color;}
 
-	virtual Vect getNormalAt(Vect point);
-	virtual double findIntersection(Ray ray);
+	virtual Vect getNormal(Vect point);
+	virtual Intersection findIntersection(Ray ray,vector<Source*> light_sources);
 
 };
 

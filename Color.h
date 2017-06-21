@@ -22,6 +22,13 @@ public:
 	void setSpecial(double n) { special=n;}
 
 
+	double brightness();
+	Color colorScalar(double) const;
+	Color operator+(const Color &) const ;
+	Color operator*(const Color &) const ;
+
+	Color colorAverage(Color c);
+
 
 
 };
