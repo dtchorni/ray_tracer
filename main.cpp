@@ -97,7 +97,7 @@ double m = 0;
 	//prevent unnecessary calculations
 	if(object_intersections.size()==0){ return -1;}
 	else if(object_intersections.size()==1) {
-		if(object_intersections.at(0)>0){
+		if(object_intersections.at(0).distance >0){
 			return 0;
 		}else{
 			return -1;
@@ -107,14 +107,14 @@ double m = 0;
 	else{
 		
 		for(int i =0; i < object_intersections.size(); ++i){
-			if(m < object_intersections.at(i)) m = object_intersections.at(i);
+			if(m < object_intersections.at(i).distance) m = object_intersections.at(i).distance;
 		}
 	}
 
 	if(m > 0){
 		for(int index =0; index < object_intersections.size(); index++){
-			if(object_intersections.at(index) > 0 && object_intersections.at(index)<= m){
-				m = object_intersections.at(index);
+			if(object_intersections.at(index).distance > 0 && object_intersections.at(index).distance <= m){
+				m = object_intersections.at(index).distance;
 				index_of_minimum_value=index;
 			}
 		}
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]){
 		Color gray(0.5,0.5,0.5,0);
 		Color black(0,0,0,0);
 
-		Vect light_position(0,0,1);//Vect light_position(-7,10,-10);
+		Vect light_position(0,0,1); //Vect light_position(-7,10,-10);
 
 		Light scene_light(light_position,white_light);
 		vector<Source*> light_sources;
@@ -315,10 +315,10 @@ int main(int argc, char *argv[]){
 
 				Ray cam_ray (cam_ray_origin, cam_ray_direction);
 
-				vector<double> intersections;
+				vector<Intersection> intersections;
 				//cout<<"\nintersections at: "<<x<<" "<<y<<endl;
 				for(int index =0; index<scene_objects.size(); ++index){
-						double h =scene_objects.at(index)->findIntersection(cam_ray);
+						Intersection h =scene_objects.at(index)->findIntersection(cam_ray);
 						intersections.push_back(h);
 						//cout<<"\t"<<h<<" "<<endl;
 				}
