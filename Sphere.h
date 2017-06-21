@@ -2,6 +2,7 @@
 #ifndef _SPHERE_H
 #define _SPHERE_H
 
+#include <vector>
 #include "Color.h"
 #include "Object.h"
 #include "Vect.h"
@@ -24,7 +25,7 @@ public:
 	virtual Color getColor(){return color;}
 
 	virtual Vect getNormal(Vect point);
-	virtual Intersection findIntersection(Ray ray,vector<Source*> light_sources);
+	virtual Intersection findIntersection(Ray ray,std::vector<Source*> light_sources);
 
 };
 

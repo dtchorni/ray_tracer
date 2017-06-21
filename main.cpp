@@ -90,7 +90,7 @@ void savebmp(const char *filename, int w, int h, int dpi, RGBType *data){
 
 }
 
-int winningObjectIndex(vector<double> object_intersections){
+int winningObjectIndex(vector<Intersection> object_intersections){
 	//return the index of teh winning intersection
 	int index_of_minimum_value;
 double m = 0;
@@ -124,7 +124,7 @@ double m = 0;
 	}
 }
 
-
+/*
 Color getColorAt(Vect intersection_position, Vect intersection_ray_direction, vector<Object*>scene_objects,int index_of_winning_object,vector<Source*> light_sources, double accuracy, double ambientlight){
 	
 	Color winning_object_color = scene_objects.at(index_of_winning_object)->getColor();
@@ -184,7 +184,7 @@ Color getColorAt(Vect intersection_position, Vect intersection_ray_direction, ve
 	}
 
 	return final_color;
-}
+}*/
 
 
 int thisone;
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]){
 		Color gray(0.5,0.5,0.5,0);
 		Color black(0,0,0,0);
 
-		Vect light_position(0,0,1); //Vect light_position(-7,10,-10);
+		Vect light_position(0,4,0); //Vect light_position(-7,10,-10);
 
 		Light scene_light(light_position,white_light);
 		vector<Source*> light_sources;
@@ -318,7 +318,7 @@ int main(int argc, char *argv[]){
 				vector<Intersection> intersections;
 				//cout<<"\nintersections at: "<<x<<" "<<y<<endl;
 				for(int index =0; index<scene_objects.size(); ++index){
-						Intersection h =scene_objects.at(index)->findIntersection(cam_ray);
+						Intersection h =scene_objects.at(index)->findIntersection(cam_ray, light_sources);
 						intersections.push_back(h);
 						//cout<<"\t"<<h<<" "<<endl;
 				}
@@ -336,25 +336,32 @@ int main(int argc, char *argv[]){
 					pixels[thisone].b = 0;
 					////cout<<" ";
 				}else{//object
-					if(intersections.at(index_of_winning_object)>accuracy){
+					if(intersections.at(index_of_winning_object).distance>accuracy){
 						//determine the position and dircetion at the POI
 
-						Vect intersection_position = cam_ray_origin + (cam_ray_direction * intersections.at(index_of_winning_object));
+						Vect intersection_position = cam_ray_origin + (cam_ray_direction * intersections.at(index_of_winning_object).distance);
 						Vect intersection_ray_direction = cam_ray_direction;
 
 
-						Color intersection_color = getColorAt(intersection_position, intersection_ray_direction, scene_objects,index_of_winning_object,light_sources, accuracy,ambientlight);
+						/*Color intersection_color = getColorAt(intersection_position, intersection_ray_direction, scene_objects,index_of_winning_object,light_sources, accuracy,ambientlight);
 
 						pixels[thisone].r=intersection_color.getRed();
 						pixels[thisone].g = intersection_color.getGreen();
-						pixels[thisone].b = intersection_color.getBlue();
+						pixels[thisone].b = intersection_color.getBlue();*/
 
-						/*Color this_color = scene_objects.at(index_of_winning_object)->getColor();	//no shading		
+						Color this_color = scene_objects.at(index_of_winning_object)->getColor();	//no shading		
 						////cout<<"x";
-
-						pixels[thisone].r=this_color.getRed();
-						pixels[thisone].g = this_color.getGreen();
-						pixels[thisone].b = this_color.getBlue();*/
+						for(int i =0; i < light_sources.size(); ++i){
+							if((light_sources.at(i)->getPosition().dot(intersections.at(index_of_winning_object).normal)) > 0 ){
+								pixels[thisone].r=this_color.getRed() + cos(intersections.at(index_of_winning_object).angle.at(i));
+								pixels[thisone].g = this_color.getGreen() + cos(intersections.at(index_of_winning_object).angle.at(i));
+								pixels[thisone].b = this_color.getBlue() + cos(intersections.at(index_of_winning_object).angle.at(i));
+							}else{
+								pixels[thisone].r=this_color.getRed();
+								pixels[thisone].g = this_color.getGreen();
+								pixels[thisone].b = this_color.getBlue();
+							}
+						}
 					}
 
 				}
