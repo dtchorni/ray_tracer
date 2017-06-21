@@ -4,10 +4,11 @@
 #include <vector>
 
 struct Intersection{
-	double distance, angle;
+	double distance;
+	std::vector<double> angle;
 	Vect normal;
 	Intersection();
-	Intersection(double,vector<double>,Vect);
+	Intersection(double,std::vector<double>,Vect);
 
 };
 
