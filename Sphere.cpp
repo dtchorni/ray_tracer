@@ -12,7 +12,7 @@ Sphere::Sphere(Vect o, double r, Color d): center(o),radius(r), color(d){}
 
 Vect Sphere::getNormal(Vect point){
 	//normal always points away from the center fo teh sphere
-	Vect normal_vect=(point+(center.negative())).normalize();
+	Vect normal_vect=(point+(center)).normalize();
 	return normal_vect;
 }
 Intersection Sphere::findIntersection(Ray ray, std::vector<Source*> light_sources){
@@ -55,37 +55,32 @@ Intersection Sphere::findIntersection(Ray ray, std::vector<Source*> light_source
 		double root_1 = ((-1*b - sqrt(discriminant))/2) - 0.00001;
 		if(root_1>0){//first rot is the smallest positive root
 			distance = root_1;
-			double x,y,z;
-			x = ray_origin_x*(1-distance)+(distance*ray_direction_x);
-			y = ray_origin_y*(1-distance)+(distance*ray_direction_y);
-			z = ray_origin_z*(1-distance)+(distance*ray_direction_z);
-			normal = getNormal(Vect(x,y,z));
+			Vect poi = ray.point(distance);
+			normal = getNormal(poi);
 			int s = light_sources.size();
 			for(int i =0; i < s; ++i){
 				double a = (normal.dot(light_sources.at(i)->getPosition())) / (normal.magnitude()*light_sources.at(i)->getPosition().magnitude());
 				a = (acos(a)-90) * 180/M_PI;
 				angle.push_back(a);
 			}
-			return Intersection(distance,angle,normal);
+			return Intersection(distance,angle,normal, poi);
 		}else{//the second root is the smallest positive root
 			double root_2 = ((-1*b + sqrt(discriminant))/2) - 0.00001;
 			distance = root_2;
 		}
 		double x,y,z;
-			x = ray_origin_x*(1-distance)+(distance*ray_direction_x);
-			y = ray_origin_y*(1-distance)+(distance*ray_direction_y);
-			z = ray_origin_z*(1-distance)+(distance*ray_direction_z);
-			normal = getNormal(Vect(x,y,z));
+			Vect poi = ray.point(distance);
+			normal = getNormal(poi);
 			int s = light_sources.size();
 			for(int i =0; i < s; ++i){
 				double a = (normal.dot(light_sources.at(i)->getPosition())) / (normal.magnitude()*light_sources.at(i)->getPosition().magnitude());
-				a = (acos(a)-90) * 180/M_PI;
+				a = (acos(a)) * (M_PI/180);
 				angle.push_back(a);
 			}
-			return Intersection(distance,angle,normal);
+			return Intersection(distance,angle,normal,poi);
 	}else {
 		//ray missed sphere
-		return Intersection(-1,std::vector<double>(),Vect());
+		return Intersection(-1,std::vector<double>(),Vect(),Vect());
 	}
 
 

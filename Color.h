@@ -2,6 +2,7 @@
 #ifndef _COLOR_H
 #define _COLOR_H
 #include "math.h"
+#include <iostream>
 
 class Color{
 	double red,green,blue,special;
@@ -28,6 +29,8 @@ public:
 	Color operator*(const Color &) const ;
 
 	Color colorAverage(Color c);
+
+	void print(){std::cout<<"R: "<<red<<"G: "<<green<<"B: "<<blue<<std::endl;}
 
 
 

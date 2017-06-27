@@ -6,6 +6,9 @@
 #include "Object.h"
 #include "Vect.h"
 #include "math.h"
+#include "Intersection.h"
+#include "Source.h"
+#include <vector>
 
 class Plane : public Object {
 	Vect normal;
@@ -20,11 +23,12 @@ public:
 	virtual Vect getNormal(){return normal;}
 	virtual double getDistance(){return distance;}
 	virtual Color getColor(){return color;}
+	
 
 	Vect getNormalAt(Vect point);
 
-	virtual double findIntersection(Ray);
-
+	virtual Intersection findIntersection(Ray, std::vector<Source*> light);
+	virtual Vect getPosition();
 };
 
 

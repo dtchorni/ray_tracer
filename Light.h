@@ -15,7 +15,7 @@ public:
 	Light (Vect,Color);
 
 	//methods
-	virtual Vect getPos(){return position;}
+	virtual Vect getPosition(){return position;}
 	virtual Color getColor(){return color;}
 
 };

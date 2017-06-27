@@ -20,7 +20,8 @@ public:
 	Sphere (Vect,double, Color);
 
 	//methods
-	virtual Vect getCenter(){return center;}
+	virtual Vect getPositionclear
+	(){return center;}
 	virtual double getRadius(){return radius;}
 	virtual Color getColor(){return color;}
 

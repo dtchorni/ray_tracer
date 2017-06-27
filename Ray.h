@@ -15,6 +15,7 @@ public:
 	//methods
 	Vect getOrigin(){return origin;}
 	Vect getDirection(){return direction;}
+	Vect point(double);
 
 };
 
