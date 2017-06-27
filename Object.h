@@ -16,10 +16,11 @@ public:
 	Object();
 
 	//methods
-	virtual Intersection findIntersection(Ray,std::vector<Source*>);
+	virtual Intersection findIntersection(Ray);
 	virtual Color getColor(){return Color (0.0,0.0,0.0,0);}
 	virtual Vect getNormal(){return Vect(0,0,0);}
 	virtual Vect getPosition(){return Vect(0,0,0);}
+	virtual bool onObject(Vect,double){return false;}
 
 };
 

@@ -2,4 +2,4 @@
 
 Object::Object(){}
 
-Intersection Object::findIntersection(Ray r, std::vector<Source*> l){ return Intersection();}
+Intersection Object::findIntersection(Ray r){ return Intersection();}

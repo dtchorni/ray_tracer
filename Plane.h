@@ -27,8 +27,9 @@ public:
 
 	Vect getNormalAt(Vect point);
 
-	virtual Intersection findIntersection(Ray, std::vector<Source*> light);
+	virtual Intersection findIntersection(Ray);
 	virtual Vect getPosition();
+	virtual bool onObject(Vect,double);
 };
 
 

@@ -26,7 +26,8 @@ public:
 	virtual Color getColor(){return color;}
 
 	virtual Vect getNormal(Vect point);
-	virtual Intersection findIntersection(Ray ray,std::vector<Source*> light_sources);
+	virtual Intersection findIntersection(Ray ray);
+	virtual bool onObject(Vect,double);
 
 };
 

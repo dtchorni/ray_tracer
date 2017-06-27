@@ -267,7 +267,7 @@ int main(int argc, char *argv[]){
 
 		Vect light_position(2,5,0); //Vect light_position(-7,10,-10);
 		Vect light_position2(-2,5,0);
-		Vect light_overhead(0,3,0);
+		Vect light_overhead(0,5,0);
 
 		Light scene_light(light_position,white_light);
 		Light scene_light2(light_position2,white_light);
@@ -282,8 +282,8 @@ int main(int argc, char *argv[]){
 		Vect s = Vect(0,1,-0.3).normalize();
 		
 		//for cam1
-		Sphere scene_sphere(O,0.25,pretty_green);
-		Plane scene_plane(Y,10, maroon);
+		Sphere scene_sphere(O,0.25,pretty_green); // value of 0
+		Plane scene_plane(Y,10, maroon);		// value of 1
 /*
 		//for cam2
 		Sphere scene_sphere(s,,pretty_green);
@@ -292,7 +292,7 @@ int main(int argc, char *argv[]){
 		vector<Object*> scene_objects;
 				
 		//cout<<"sphere is first, plane is second"<<endl;
-		scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
+		scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere)); 
 		scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
 
 		double xamnt, yamnt;
@@ -342,7 +342,7 @@ int main(int argc, char *argv[]){
 				vector<Intersection> intersections;
 				//cout<<"\nintersections at: "<<x<<" "<<y<<endl;
 				for(int index =0; index<scene_objects.size(); ++index){
-						Intersection h =scene_objects.at(index)->findIntersection(cam_ray, light_sources);
+						Intersection h =scene_objects.at(index)->findIntersection(cam_ray);
 						intersections.push_back(h);
 						//h.print();
 				}
@@ -379,22 +379,48 @@ int main(int argc, char *argv[]){
 						double r=0.0,g=0.0,b=0.0;
 
 						for(int i =0; i < light_sources.size(); ++i){
+
+							Vect shadow_origin = intersections.at(index_of_winning_object).poi;
+							Vect shadow_direction = (light_sources.at(i)->getPosition() + shadow_origin.negative()).normalize();
+							/*cout<<"FOR XY: "<<x<<" "<<y<<endl;
+							shadow_origin.print();
+							shadow_direction.print();
+							cout<<endl;*/
+							Ray shadow_ray(shadow_origin,shadow_direction);
+							vector<Intersection> shadows;
+							for(int index =0; index<scene_objects.size(); ++index){
+								if(index==index_of_winning_object){
+									Intersection s =scene_objects.at(index)->findIntersection(shadow_ray);
+									shadows.push_back(s);
+								}
+							}
+							bool shadowed=false;
+							for(int s  =0; s < shadows.size(); ++s){
+								cout<<shadows.at(s).distance<<endl;
+								if(shadows.at(s).distance != -1){
+									shadowed = true;
+									break;
+								} 
+							}
+
+							if(shadowed){
+							
 							//cout<<((double)(.at(i)->getPosition().dot(intersections.at(index_of_winning_object).normal)))<<endl;
-							Vect l = (light_sources.at(i)->getPosition() + (intersections.at(index_of_winning_object).poi.negative()));
-							double diffuse = 0.8;
-							double light_magnitude = 10000 * light_sources.at(i)->getColor().brightness() / (4*M_PI*(pow(intersections.at(index_of_winning_object).distance,2)));
-							light_magnitude > 1.2 ? light_magnitude =1.2 : light_magnitude;
-							light_magnitude < 0.01 ? light_magnitude = 0.01 : light_magnitude;
+								Vect l = (light_sources.at(i)->getPosition() + (intersections.at(index_of_winning_object).poi.negative()));
+								double diffuse = 0.8;
+								double light_magnitude = 10000 * light_sources.at(i)->getColor().brightness() / (4*M_PI*(pow(intersections.at(index_of_winning_object).distance,2)));
+								light_magnitude > 1.2 ? light_magnitude =1.2 : light_magnitude;
+								light_magnitude < 0.01 ? light_magnitude = 0.01 : light_magnitude;
 
-							Vect norm = intersections.at(index_of_winning_object).normal;
+								Vect norm = intersections.at(index_of_winning_object).normal;
 							
-							cout<<light_magnitude<<endl;
+								//cout<<"not shadowed: "<<light_magnitude<<endl;
 
-							r += this_color.getRed()*diffuse*max(0.0, (l.dot(norm)))*light_magnitude;
-							g += this_color.getGreen()*diffuse*max(0.0, (l.dot(norm)))*light_magnitude;
-							b += this_color.getBlue()*diffuse*max(0.0, (l.dot(norm)))*light_magnitude;
+								r += this_color.getRed()*diffuse*max(0.0, (l.dot(norm)))*light_magnitude;
+								g += this_color.getGreen()*diffuse*max(0.0, (l.dot(norm)))*light_magnitude;
+								b += this_color.getBlue()*diffuse*max(0.0, (l.dot(norm)))*light_magnitude;
 
-							
+							}
 							
 
 							//cout<<pixels[thisone].r<<" "<<pixels[thisone].g<<" "<<pixels[thisone].b<<endl;

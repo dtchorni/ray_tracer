@@ -10,7 +10,7 @@ Plane::Plane(Vect n, double d, Color c): normal(n),distance(d), color(c){}
 
 Vect Plane::getNormalAt(Vect point){return normal;}
 
-Intersection Plane::findIntersection(Ray ray, std::vector<Source*> lights){
+Intersection Plane::findIntersection(Ray ray){
 	Vect ray_direction = ray.getDirection().normalize();
 	Vect ray_origin = ray.getOrigin();
 	double a = ray_direction.dot(normal);
@@ -35,4 +35,8 @@ Intersection Plane::findIntersection(Ray ray, std::vector<Source*> lights){
 
 Vect Plane::getPosition(){
 	return Vect();
+}
+
+bool Plane::onObject(Vect point, double accuracy){
+	
 }
